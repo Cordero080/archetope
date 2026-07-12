@@ -1,0 +1,18 @@
+{
+  "name": "archetope",
+  "version": "0.1.0",
+  "description": "Multi-agent emergent society simulation grounded in tarot archetypes, MBTI, and Jungian shadow.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "migrate": "node db/migrate.js",
+    "seed": "node server/seed.js",
+    "start": "node server/api.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "pg": "^8.13.1"
+  }
+}

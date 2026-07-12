@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Archetope</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="topbar__brand">
+          <h1 class="topbar__title">ARCHETOPE</h1>
+          <p class="topbar__tagline">emergent society · one tick at a time</p>
+        </div>
+        <a class="gallery-link" href="gallery.html">🖼 Gallery</a>
+        <form class="topbar__controls" id="tick-form">
+          <input
+            type="text"
+            id="event-input"
+            class="event-input"
+            placeholder="Describe the next event… (optional)"
+            autocomplete="off"
+          />
+          <button type="submit" class="chamfer-btn" id="tick-btn">
+            <span>RUN NEXT TICK</span>
+          </button>
+        </form>
+      </header>
+
+      <main class="layout">
+        <h2 class="panel__title">Agents</h2>
+        <section class="agents" id="agents" aria-label="Agents"></section>
+
+        <section class="panel relationships" aria-label="Relationships">
+          <h2 class="panel__title">
+            Relationships
+            <button
+              type="button"
+              class="info-btn"
+              data-info="relationships"
+              aria-label="What does this show?"
+            >
+              ?
+            </button>
+          </h2>
+          <div id="relationships" class="relationships__list"></div>
+        </section>
+
+        <section class="panel conversations" aria-label="Conversations">
+          <h2 class="panel__title">Conversations</h2>
+          <div id="conversations" class="conversations__list"></div>
+        </section>
+
+        <section class="panel timeline" aria-label="World state timeline">
+          <h2 class="panel__title">World State</h2>
+          <div id="timeline" class="timeline__list"></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+
+    <div id="transcript-overlay" class="transcript-overlay" hidden>
+      <div class="transcript-card">
+        <button type="button" class="transcript-close" id="transcript-close">
+          ×
+        </button>
+        <h2 class="transcript-title" id="transcript-title"></h2>
+        <div class="transcript-body" id="transcript-body"></div>
+      </div>
+    </div>
+
+    <div id="info-overlay" class="transcript-overlay" hidden>
+      <div class="transcript-card">
+        <button type="button" class="transcript-close" id="info-close">
+          ×
+        </button>
+        <h2 class="transcript-title" id="info-title"></h2>
+        <div class="transcript-body" id="info-body"></div>
+      </div>
+    </div>
+
+    <div id="agent-focus-overlay" class="transcript-overlay" hidden>
+      <div class="transcript-card agent-focus-card">
+        <button type="button" class="transcript-close" id="agent-focus-close">
+          ×
+        </button>
+        <h2
+          class="transcript-title agent-focus-title"
+          id="agent-focus-title"
+        ></h2>
+        <div class="agent-focus-body" id="agent-focus-body"></div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
