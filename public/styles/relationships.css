@@ -1,0 +1,63 @@
+/* The Relationships panel: one row per agent pair, plus its centered
+   positive/negative sentiment bar. */
+
+.relationships__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.rel-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.rel-row__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-hud);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.rel-row__bar {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.rel-row__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 212, 255, 0.8),
+    rgba(0, 245, 255, 0.9)
+  );
+}
+
+.rel-row__fill--negative {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 49, 49, 0.9),
+    rgba(255, 100, 100, 0.7)
+  );
+}
+
+.rel-row__sentiment {
+  font-family: var(--font-hud);
+  font-size: 0.8rem;
+  text-align: right;
+  color: var(--text-dim);
+}

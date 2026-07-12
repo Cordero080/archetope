@@ -1,0 +1,199 @@
+/* Page shell: the app container, top bar, panel/grid layout, and the
+   generic buttons that live in that chrome (not tied to any one feature). */
+
+.app {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* === topbar === */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.topbar__title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 2.2rem;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.35);
+}
+
+.topbar__tagline {
+  font-family: var(--font-hud);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 0.35rem;
+}
+
+.topbar__controls {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gallery-link {
+  font-family: var(--font-hud);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 0.5rem 0.9rem;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.gallery-link:hover {
+  color: #00d4ff;
+  border-color: rgba(0, 212, 255, 0.35);
+}
+
+.event-input {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.55rem 0.8rem;
+  width: 320px;
+  max-width: 60vw;
+}
+.event-input:focus {
+  outline: none;
+  border-color: rgba(0, 212, 255, 0.5);
+}
+
+/* === chamfered button, dark holographic surface === */
+.chamfer-btn {
+  position: relative;
+  font-family: var(--font-hud);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(230, 240, 255, 0.9);
+  background: var(--dark-surface);
+  border: none;
+  border-top: 1px solid rgba(120, 160, 220, 0.55);
+  border-right: 3px solid rgba(0, 0, 0, 0.5);
+  border-bottom: 5px solid rgba(80, 120, 200, 0.2);
+  padding: 0.75rem 1.4rem;
+  cursor: pointer;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer-md)) 0,
+    100% var(--chamfer-md),
+    100% 100%,
+    var(--chamfer-md) 100%,
+    0 calc(100% - var(--chamfer-md))
+  );
+  transition:
+    color 0.2s ease,
+    filter 0.2s ease,
+    transform 0.15s ease,
+    border-color 0.2s ease;
+}
+.chamfer-btn:hover {
+  color: #fff;
+  filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.35));
+  transform: translateY(-1px);
+}
+.chamfer-btn:active {
+  transform: translateY(0);
+}
+.chamfer-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+  filter: none;
+  transform: none;
+}
+
+/* === layout grid === */
+.layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.agents {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+/* === glass panel, shared by agent cards + side panels === */
+.panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  padding: 1.4rem 1.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+.panel__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--font-hud);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.info-btn {
+  flex-shrink: 0;
+  width: 1.3rem;
+  height: 1.3rem;
+  font-family: var(--font-hud);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.info-btn:hover {
+  color: #00d4ff;
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .event-input {
+    width: 100%;
+    max-width: none;
+  }
+}

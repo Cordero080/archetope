@@ -1,0 +1,269 @@
+/* The agent card itself (name, MBTI, state badge, shadow-lean bar, history
+   list) plus the focus-modal styling that reuses those same pieces at a
+   larger size. */
+
+.agent-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--agent-color, var(--glass-border));
+  border-left-width: 3px;
+  border-radius: 4px;
+  padding: 1.2rem 1.3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease;
+}
+
+.agent-card--flash {
+  box-shadow:
+    0 0 0 1px var(--agent-color, transparent),
+    0 0 28px var(--agent-color, transparent);
+}
+
+.agent-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+
+.agent-card__name {
+  font-family: var(--font-hud);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--agent-color, #fff);
+}
+
+.agent-card__head-right {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.agent-card__focus-btn {
+  flex-shrink: 0;
+  width: 1.3rem;
+  height: 1.3rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.agent-card__focus-btn:hover {
+  color: var(--agent-color, #00d4ff);
+  border-color: var(--agent-color, rgba(0, 212, 255, 0.4));
+}
+
+.agent-card__mbti {
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+.agent-card__mbti--clickable {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+.agent-card__mbti--clickable:hover {
+  transform: scale(1.15);
+  color: var(--agent-color, #fff);
+}
+
+.state-badge {
+  display: inline-block;
+  font-family: var(--font-hud);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  margin-bottom: 0.7rem;
+}
+.state-badge--light {
+  color: #0a0e1c;
+  background: rgba(255, 215, 0, 0.85);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.25);
+}
+.state-badge--shadow {
+  color: #fff;
+  background: rgba(120, 20, 40, 0.85);
+  box-shadow: 0 0 12px rgba(255, 49, 49, 0.3);
+}
+
+.agent-card__proposal {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(220, 230, 255, 0.85);
+  margin-bottom: 0.5rem;
+}
+
+.agent-card__reasoning {
+  font-size: 0.86rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.shadow-lean {
+  margin-bottom: 0.8rem;
+  cursor: help;
+}
+
+.shadow-lean__track {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  margin-bottom: 0.3rem;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 215, 0, 0.7) 0%,
+    rgba(255, 215, 0, 0.35) 45%,
+    rgba(120, 20, 40, 0.35) 55%,
+    rgba(255, 49, 49, 0.8) 100%
+  );
+}
+
+.shadow-lean__marker {
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 10px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -50%);
+}
+
+.shadow-lean__label {
+  font-family: var(--font-hud);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+.agent-card__toggle {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  padding: 0.4rem 0.6rem;
+  margin-top: 0.75rem;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.agent-card__toggle:hover {
+  color: var(--agent-color, var(--text-primary));
+  border-color: var(--agent-color, rgba(255, 255, 255, 0.2));
+}
+
+.agent-card__history {
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 0.5rem;
+}
+
+.agent-card__history-item {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(220, 230, 255, 0.75);
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.agent-card__history-item:last-child {
+  border-bottom: none;
+}
+
+.agent-card__history-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+
+.agent-card__history-num {
+  flex-shrink: 0;
+  font-family: var(--font-hud);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--agent-color, var(--text-dim));
+  opacity: 0.8;
+}
+
+.agent-card__history-time {
+  flex-shrink: 0;
+  font-family: var(--font-hud);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+.agent-card__history-text {
+  margin: 0;
+}
+
+/* === focus modal — same card pieces above, shown bigger === */
+.agent-focus-card {
+  width: min(960px, 94vw);
+  max-height: 92vh;
+  padding: 2.5rem;
+  border-color: var(--agent-color, rgba(0, 212, 255, 0.25));
+}
+
+.agent-focus-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
+}
+
+.agent-focus-body .state-badge {
+  margin-bottom: 1rem;
+}
+.agent-focus-body .agent-card__proposal {
+  font-size: 1.05rem;
+}
+.agent-focus-body .agent-card__reasoning {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+.agent-focus-body .agent-card__history {
+  max-height: none;
+  column-count: 2;
+  column-gap: 2rem;
+}
+.agent-focus-body .agent-card__history-item {
+  break-inside: avoid;
+}

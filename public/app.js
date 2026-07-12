@@ -21,6 +21,7 @@ const ACCENTS = {
   hierophant: "var(--c-hierophant)",
   star: "var(--c-star)",
   magician: "var(--c-magician)",
+  emperor: "var(--c-emperor)",
 };
 
 const INFO_CONTENT = {
@@ -33,7 +34,38 @@ const INFO_CONTENT = {
     ],
   },
 };
-
+const MBTI_INFO = {
+  ENTJ: {
+    definition:
+      "Extraverted, iNtuitive, Thinking, Judging — decisive, structural, quick to act on a plan, uncomfortable leaving a flawed system unaddressed.",
+    reasoning:
+      "Assigned strategically, not by accident: Te-dominant decisiveness gives the Tower's light (necessary revelation) real teeth, and is exactly what makes its shadow (destruction for its own sake) dangerous — conviction without the brake of Fi. It was chosen specifically to set up a built-in opposite to the Hierophant's ISTJ.",
+  },
+  ISTJ: {
+    definition:
+      "Introverted, Sensing, Thinking, Judging — methodical, precedent-minded, trusts what's already proven over what's new.",
+    reasoning:
+      "Assigned strategically: Si-dominant reverence for precedent is the direct opposite of the Tower's Te-Ne disruption. Tower vs. Hierophant is revolutionary vs. institution-builder by construction, not flavor text — the MBTI pairing is what makes that conflict structural instead of just written-in.",
+  },
+  INFP: {
+    definition:
+      "Introverted, iNtuitive, Feeling, Perceiving — idealistic, guided by personal values felt deeply rather than argued.",
+    reasoning:
+      "Assigned strategically, as the group's values-conscience: Fi-dominant idealism makes hope and healing a felt identity, not a performance. Its shadow (martyrdom, naive self-sacrifice) is the classic INFP failure mode — over-giving from identity rather than strategy.",
+  },
+  ENTP: {
+    definition:
+      "Extraverted, iNtuitive, Thinking, Perceiving — sees possibility everywhere, quick to prototype, energized by clever combinations.",
+    reasoning:
+      "Assigned strategically to give the group a builder who moves faster than consensus: Ne-dominant delight in possibility is what makes the Magician build immediately. Its shadow (manipulation) is that same Ne-Ti energy unmoored from Fe — persuasion used instrumentally instead of honestly.",
+  },
+  ESTJ: {
+    definition:
+      "Extraverted, Sensing, Thinking, Judging — commanding, practical, organizes people and resources toward a concrete result and expects it to hold.",
+    reasoning:
+      "Assigned strategically to create a third, distinct kind of authority: Te-Si enforcement in the present, not out of reverence for the past (that's Hierophant's role) but because someone has to hold the line right now. Distinct from Hierophant's passive precedent-reverence and Tower's revolutionary instinct.",
+  },
+};
 // ============================================================================
 // 2. DOM REFERENCES
 // ============================================================================
@@ -434,9 +466,18 @@ function renderAgents(agents, latestByKey = new Map(), worldState = []) {
     name.className = "agent-card__name";
     name.textContent = agent.archetype;
 
-    const mbti = document.createElement("span");
-    mbti.className = "agent-card__mbti";
+    const mbti = document.createElement("button");
+    mbti.type = "button";
+    mbti.className = "agent-card__mbti agent-card__mbti--clickable";
     mbti.textContent = agent.mbti;
+    mbti.addEventListener("click", () => {
+      const info = MBTI_INFO[agent.mbti];
+      if (!info) return;
+      openInfoModal(`${agent.mbti} - ${agent.archetype}`, [
+        info.definition,
+        info.reasoning,
+      ]);
+    });
 
     const focusBtn = document.createElement("button");
     focusBtn.type = "button";
