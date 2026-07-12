@@ -11,6 +11,7 @@ import { fileURLToPath } from "url";
 import { query } from "./db.js";
 import { tick } from "./orchestrator.js";
 import { generateImage } from "./imageClient.js";
+import { generateInsight } from "./insightClient.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
@@ -28,12 +29,17 @@ app.get("/api/world", async (_req, res) => {
       "SELECT id, key, archetype, mbti, current_state FROM agents ORDER BY id",
     );
     const { rows: worldState } = await query(
-      `SELECT ws.id, ws.description, ws.created_at, ws.state, a.key AS agent_key, a.archetype,
+      `SELECT ws.id, ws.description, ws.created_at, ws.state, a.key AS agent_key, a.archetype, a.mbti,
               gi.file_path AS image_path, gi.prompt AS image_prompt,
-              gi.created_at AS image_created_at
+              gi.created_at AS image_created_at,
+              ins.target_sentence AS insight_target_sentence,
+              ins.arcana_note AS insight_arcana_note,
+              ins.mbti_note AS insight_mbti_note,
+              ins.state_note AS insight_state_note
        FROM world_state ws
        LEFT JOIN agents a ON a.id = ws.built_by
        LEFT JOIN generated_images gi ON gi.world_state_id = ws.id
+       LEFT JOIN insights ins ON ins.world_state_id = ws.id
        ORDER BY ws.created_at ASC`,
     );
     const { rows: relRows } = await query("SELECT * FROM relationships");
@@ -154,6 +160,81 @@ app.post("/api/visualize", async (req, res) => {
     res.json({
       url: `/${filePath}`,
       prompt: image.prompt,
+      createdAt: inserted[0].created_at,
+      cached: false,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/insight", async (req, res) => {
+  try {
+    const worldStateId = Number(req.body?.worldStateId);
+
+    // Already explained — return the saved annotation, never re-spend
+    // tokens on a repeat click.
+    const { rows: existing } = await query(
+      `SELECT target_sentence, arcana_note, mbti_note, state_note, created_at
+       FROM insights WHERE world_state_id = $1`,
+      [worldStateId],
+    );
+    if (existing.length > 0) {
+      const row = existing[0];
+      return res.json({
+        targetSentence: row.target_sentence,
+        arcanaNote: row.arcana_note,
+        mbtiNote: row.mbti_note,
+        stateNote: row.state_note,
+        createdAt: row.created_at,
+        cached: true,
+      });
+    }
+
+    const { rows } = await query(
+      `SELECT ws.description, ws.state, a.archetype, a.mbti, a.identity_block
+       FROM world_state ws
+       LEFT JOIN agents a ON a.id = ws.built_by
+       WHERE ws.id = $1`,
+      [worldStateId],
+    );
+    if (rows.length === 0) return res.status(404).json({ error: "Not found" });
+
+    const { description, state, archetype, mbti, identity_block } = rows[0];
+    if (!archetype) {
+      return res.status(400).json({
+        error: "This entry isn't tied to an agent — nothing to explain.",
+      });
+    }
+
+    const insight = await generateInsight({
+      archetype,
+      mbti,
+      identityBlock: identity_block,
+      state,
+      text: description,
+    });
+
+    const { rows: inserted } = await query(
+      `INSERT INTO insights (world_state_id, target_sentence, arcana_note, mbti_note, state_note)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING created_at`,
+      [
+        worldStateId,
+        insight.targetSentence,
+        insight.arcanaNote,
+        insight.mbtiNote,
+        insight.stateNote,
+      ],
+    );
+
+    res.json({
+      archetype: insight.archetype,
+      mbti: insight.mbti,
+      targetSentence: insight.targetSentence,
+      arcanaNote: insight.arcanaNote,
+      mbtiNote: insight.mbtiNote,
+      stateNote: insight.stateNote,
       createdAt: inserted[0].created_at,
       cached: false,
     });

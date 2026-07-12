@@ -88,6 +88,9 @@ export async function callAgentRaw(
   userMessage,
   maxTokens = 700,
 ) {
+  // Note: `temperature` is not supported by this model (the API rejects it
+  // outright) — voice differentiation relies entirely on the written
+  // identity/voice text below, not a sampling-randomness dial.
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: maxTokens,

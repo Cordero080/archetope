@@ -6,7 +6,11 @@ import { anthropic, MODEL } from "./agentClient.js";
 
 const IMAGE_MODEL = "gpt-image-1";
 
-const PROMPT_SYSTEM = `You turn a short description of an action into a vivid, concrete visual prompt for an image generator. Depict the scene literally, using only what the description actually says. The setting, tools, and attire should be modern and contemporary (2026), matching whatever technology the description mentions. Do NOT add mythic, medieval, ruined, apocalyptic, or tarot-symbolic atmosphere — no crumbling towers, ancient stone, hooded robes, storms, or ruins — unless the description explicitly says so. Output ONLY the image prompt itself — one or two sentences describing the physical scene: setting, objects, composition, lighting. No text or words should appear in the image. Style: photorealistic.`;
+const PROMPT_SYSTEM = `You turn a short description of an action into a vivid, concrete visual prompt for an image generator. Depict the scene literally, using only what the description actually says for the setting, tools, and technology. Do NOT add mythic, medieval, ruined, apocalyptic, or tarot-symbolic atmosphere — no crumbling towers, ancient stone, hooded robes, storms, or ruins — unless the description explicitly says so.
+
+Default aesthetic for any figure in the scene: minimal cyberpunk, not an ordinary person in office/casual clothing — no flannels, cardigans, polos, or business-casual. Sleek, minimal, form-fitting technical gear instead. Skin can show subtle bioluminescent accents or fine glowing circuitry/meridian-like energy lines beneath the surface, as if the body itself is technologically or energetically augmented — still humanoid and grounded in plausible physics, this is stylized biotech realism, not fantasy or magic. Lighting should lean moody and high-contrast, lit by practical sources (screens, panels, the glowing lines themselves) rather than flat daylight. Give each figure a specific, memorable presence — distinctive, not a placeholder model.
+
+Output ONLY the image prompt itself — one or two sentences describing the physical scene: setting, objects, composition, lighting. No text or words should appear in the image. Style: photorealistic, minimal cyberpunk.`;
 
 async function craftImagePrompt(description) {
   const response = await anthropic.messages.create({

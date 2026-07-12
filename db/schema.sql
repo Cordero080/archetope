@@ -94,3 +94,18 @@ CREATE TABLE IF NOT EXISTS generated_images (
   file_path       TEXT NOT NULL,   -- relative to public/, e.g. "generated/<uuid>.png"
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- One "why did they say that" annotation per world_state entry, generated
+-- on demand (never automatically) and cached permanently like
+-- generated_images — a second click never re-spends tokens. Written by a
+-- separate analysis call that reads the *finished* text, not by the agent
+-- narrating itself while writing it.
+CREATE TABLE IF NOT EXISTS insights (
+  id              SERIAL PRIMARY KEY,
+  world_state_id  INTEGER NOT NULL UNIQUE REFERENCES world_state(id),
+  target_sentence TEXT NOT NULL,   -- verbatim substring of the entry's description
+  arcana_note     TEXT NOT NULL,
+  mbti_note       TEXT NOT NULL,
+  state_note      TEXT NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);

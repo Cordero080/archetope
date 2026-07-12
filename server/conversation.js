@@ -7,7 +7,7 @@ import { callAgentRaw } from "./agentClient.js";
 
 const TURNS_PER_CONVERSATION = 4;
 
-const CONVERSATION_SYSTEM_SUFFIX = `You are now in a direct, spoken conversation with another agent — not building, not proposing, just talking to them. Reply with ONLY the words you say out loud: 1-2 sentences, no narration, no stage directions, no quotation marks, no JSON. Talk like a normal person texting a coworker — plain modern language, no poetic or nature metaphor (no roots, veins, hearths, stones, claws, earth), even if the world-state history was written in a flowery style. Ignore that style completely. You know 2026 technology, so default to modern/high-tech tools and methods over primitive ones.`;
+const CONVERSATION_SYSTEM_SUFFIX = `You are now in a direct, spoken conversation with another agent — not building, not proposing, just talking to them. Reply with ONLY the words you say out loud: 1-2 sentences, no narration, no stage directions, no quotation marks, no JSON. Speak in your own established voice and sense of humor from your identity above — not a generic tone, and not the same way the other agent talks. Plain modern language, no poetic or nature metaphor (no roots, veins, hearths, stones, claws, earth), even if the world-state history was written in a flowery style. Ignore that style completely. You know 2026 technology, so default to modern/high-tech tools and methods over primitive ones.`;
 
 function buildTurnPrompt({
   eventDescription,

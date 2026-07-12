@@ -1,9 +1,42 @@
+// ============================================================================
+// ARCHETOPE — FRONTEND (app.js)
+//
+// This file always keeps the same five sections, in the same order, each
+// fenced by a banner block like the ones below. If you're looking for
+// something, this legend tells you which fence to look under:
+//
+//   1. CONSTANTS       — fixed values the rest of the file depends on
+//   2. DOM REFERENCES  — every getElementById lookup, gathered in one place
+//   3. FUNCTIONS       — the actual behavior, kept separate from wiring
+//   4. EVENT LISTENERS — where functions get attached to user interaction
+//   5. INIT            — the one call that kicks things off on page load
+// ============================================================================
+
+// ============================================================================
+// 1. CONSTANTS
+// ============================================================================
+
 const ACCENTS = {
   tower: "var(--c-tower)",
   hierophant: "var(--c-hierophant)",
   star: "var(--c-star)",
   magician: "var(--c-magician)",
 };
+
+const INFO_CONTENT = {
+  relationships: {
+    title: "What are Relationships?",
+    body: [
+      "Each row is a running score between two agents — it moves up or down by 1 or 2 points after every tick, based on how one reacts to what the other just did or said.",
+      "The bar is one scale centered on zero, not a comparison between the two names. Filling right (cyan) means positive/friendly; filling left (red) means negative/strained. The two names are just the pair — their left/right position doesn't mean anything, it's not \"who's winning.\"",
+      "Every pair happens to be positive right now, which is why every bar fills the same direction — nothing has gone negative yet.",
+    ],
+  },
+};
+
+// ============================================================================
+// 2. DOM REFERENCES
+// ============================================================================
 
 const agentsEl = document.getElementById("agents");
 const relationshipsEl = document.getElementById("relationships");
@@ -26,7 +59,11 @@ const agentFocusTitle = document.getElementById("agent-focus-title");
 const agentFocusBody = document.getElementById("agent-focus-body");
 const agentFocusClose = document.getElementById("agent-focus-close");
 
-let agentsByKey = new Map();
+// ============================================================================
+// 3. FUNCTIONS
+// ============================================================================
+
+// --- small helpers -----------------------------------------------------
 
 function accentFor(key) {
   return ACCENTS[key] || "var(--glass-border)";
@@ -46,6 +83,192 @@ function formatRelativeTime(timestamp) {
   const diffDay = Math.floor(diffHour / 24);
   return `${diffDay}d ago`;
 }
+
+// A 0-1 brightness value for the little glowing dot next to each World
+// State entry: full brightness for anything under an hour old, fading down
+// to a dim floor over 24 hours, so the timeline reads "brightest = newest"
+// at a glance.
+function computeGlowIntensity(createdAt) {
+  const ageHours = (Date.now() - new Date(createdAt).getTime()) / 3600000;
+  const FLOOR = 0.15;
+  return Math.min(1, Math.max(FLOOR, 1 - ageHours / 24));
+}
+
+// --- opt-in image generation (🎨 Visualize) -----------------------------
+
+function renderImageIntoBox(imageBox, data) {
+  imageBox.textContent = "";
+  const img = document.createElement("img");
+  img.className = "visualize__image";
+  img.src = data.b64 ? `data:image/png;base64,${data.b64}` : data.url;
+  img.alt = data.prompt || "Generated image";
+
+  const caption = document.createElement("p");
+  caption.className = "visualize__caption";
+  caption.textContent = data.prompt;
+
+  imageBox.append(img, caption);
+  imageBox.dataset.loaded = "true";
+}
+
+// Opt-in "🎨 Visualize" control: only fires the (paid) image API when the
+// user explicitly clicks it, never automatically. Shared by World State
+// entries and the per-agent History dropdown, since both list the same
+// underlying world_state rows. If `existing` already has a url (this entry
+// was visualized before, in any past session), the image is already saved
+// server-side — clicking just reveals it, no API call and no cost.
+function createVisualizeControl(worldStateId, existing = {}) {
+  const wrap = document.createElement("div");
+  wrap.className = "visualize";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "visualize__btn";
+
+  const imageBox = document.createElement("div");
+  imageBox.className = "visualize__box";
+  imageBox.hidden = true;
+
+  if (existing.url) {
+    renderImageIntoBox(imageBox, existing);
+    btn.textContent = "🎨 View Image";
+  } else {
+    btn.textContent = "🎨 Visualize";
+  }
+
+  btn.addEventListener("click", async () => {
+    if (imageBox.dataset.loaded === "true") {
+      imageBox.hidden = !imageBox.hidden;
+      btn.textContent = imageBox.hidden
+        ? existing.url
+          ? "🎨 View Image"
+          : "🎨 Visualize"
+        : "🎨 Hide image";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Generating…";
+    imageBox.hidden = false;
+    imageBox.textContent = "Generating image…";
+
+    try {
+      const res = await fetch("/api/visualize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldStateId }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Failed (${res.status})`);
+      }
+      const data = await res.json();
+      renderImageIntoBox(imageBox, data);
+      btn.textContent = "🎨 Hide image";
+    } catch (err) {
+      imageBox.textContent = `Couldn't generate image: ${err.message}`;
+      btn.textContent = "🎨 Visualize";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  wrap.append(btn, imageBox);
+  return wrap;
+}
+
+// --- opt-in "why did they say that" insight (💡 Explain) ----------------
+
+// Wraps the matched substring in a clickable highlight, splitting the
+// surrounding plain text around it. Returns the highlight span, or null if
+// the model's quoted sentence isn't an exact substring of the real text
+// (falls back to leaving the text untouched rather than breaking it).
+function highlightSentenceInElement(textEl, fullText, targetSentence) {
+  const idx = targetSentence ? fullText.indexOf(targetSentence) : -1;
+  if (idx === -1) return null;
+
+  textEl.textContent = "";
+  const before = fullText.slice(0, idx);
+  const match = fullText.slice(idx, idx + targetSentence.length);
+  const after = fullText.slice(idx + targetSentence.length);
+
+  if (before) textEl.appendChild(document.createTextNode(before));
+  const mark = document.createElement("span");
+  mark.className = "insight-highlight";
+  mark.textContent = match;
+  textEl.appendChild(mark);
+  if (after) textEl.appendChild(document.createTextNode(after));
+  return mark;
+}
+
+function showInsightModal(data) {
+  openInfoModal(`${data.archetype} (${data.mbti})`, [
+    `“${data.targetSentence}”`,
+    `Arcana: ${data.arcanaNote}`,
+    `MBTI: ${data.mbtiNote}`,
+    `State: ${data.stateNote}`,
+  ]);
+}
+
+// Opt-in "why did they say that" control, same cached-forever pattern as
+// createVisualizeControl. `existing` pre-fills from data already saved in
+// a past session (from /api/world), so a page reload doesn't need a click
+// to show an insight that was already generated.
+function createInsightControl(worldStateId, textEl, fullText, existing = {}) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "insight-btn";
+  btn.textContent = "💡 Explain";
+
+  let insightData = null;
+
+  function applyData(data) {
+    insightData = data;
+    const mark = highlightSentenceInElement(
+      textEl,
+      fullText,
+      data.targetSentence,
+    );
+    if (mark)
+      mark.addEventListener("click", () => showInsightModal(insightData));
+    btn.textContent = mark ? "💡 Insight" : "💡 Explain (no exact match)";
+  }
+
+  if (existing.targetSentence) applyData(existing);
+
+  btn.addEventListener("click", async () => {
+    if (insightData) {
+      showInsightModal(insightData);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Thinking…";
+    try {
+      const res = await fetch("/api/insight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worldStateId }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Failed (${res.status})`);
+      }
+      const data = await res.json();
+      applyData(data);
+      showInsightModal(data);
+    } catch (err) {
+      btn.textContent = "💡 Explain";
+      alert(err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  return btn;
+}
+
+// --- agent cards + focus modal -------------------------------------------
 
 // Shared by the small card and the full-size focus modal, so the two never
 // drift out of sync. historyExpanded=true skips the collapse toggle and
@@ -131,13 +354,26 @@ function buildAgentContent(
 
     li.append(itemHead, text);
     if (entry.id != null) {
-      li.appendChild(
+      const controls = document.createElement("div");
+      controls.className = "entry-controls";
+      controls.appendChild(
         createVisualizeControl(entry.id, {
           url: entry.image_url,
           prompt: entry.image_prompt,
           createdAt: entry.image_created_at,
         }),
       );
+      controls.appendChild(
+        createInsightControl(entry.id, text, entry.description, {
+          archetype: agent.archetype,
+          mbti: agent.mbti,
+          targetSentence: entry.insight_target_sentence,
+          arcanaNote: entry.insight_arcana_note,
+          mbtiNote: entry.insight_mbti_note,
+          stateNote: entry.insight_state_note,
+        }),
+      );
+      li.appendChild(controls);
     }
     historyList.appendChild(li);
   });
@@ -179,7 +415,6 @@ function openAgentFocus(agent, latest, agentHistory) {
 }
 
 function renderAgents(agents, latestByKey = new Map(), worldState = []) {
-  agentsByKey = new Map(agents.map((a) => [a.key, a]));
   agentsEl.textContent = "";
 
   for (const agent of agents) {
@@ -224,6 +459,8 @@ function renderAgents(agents, latestByKey = new Map(), worldState = []) {
     agentsEl.appendChild(card);
   }
 }
+
+// --- relationships panel --------------------------------------------------
 
 function renderRelationships(relationships) {
   relationshipsEl.textContent = "";
@@ -272,12 +509,7 @@ function renderRelationships(relationships) {
   }
 }
 
-function renderTimeline(worldState) {
-  timelineEl.textContent = "";
-  for (const entry of worldState) {
-    appendTimelineEntry(entry);
-  }
-}
+// --- world state timeline --------------------------------------------------
 
 function appendTimelineEntry(entry) {
   const {
@@ -295,112 +527,68 @@ function appendTimelineEntry(entry) {
   const head = document.createElement("div");
   head.className = "timeline-entry__head";
 
+  const left = document.createElement("span");
+  left.className = "timeline-entry__left";
+
+  const node = document.createElement("span");
+  node.className = "timeline-entry__node";
+  node.style.setProperty(
+    "--glow",
+    computeGlowIntensity(createdAt ?? Date.now()),
+  );
+  node.title = `${formatRelativeTime(createdAt ?? Date.now())} — brighter means more recent`;
+
   const tag = document.createElement("span");
   tag.className = "timeline-entry__tag";
   tag.textContent = archetype || "world";
+
+  left.append(node, tag);
 
   const time = document.createElement("span");
   time.className = "timeline-entry__time";
   time.textContent = formatRelativeTime(createdAt ?? Date.now());
 
-  head.append(tag, time);
+  head.append(left, time);
 
   const text = document.createElement("span");
   text.textContent = description;
 
   item.append(head, text);
   if (id != null) {
-    item.appendChild(
+    const controls = document.createElement("div");
+    controls.className = "entry-controls";
+    controls.appendChild(
       createVisualizeControl(id, {
         url: entry.image_url,
         prompt: entry.image_prompt,
         createdAt: entry.image_created_at,
       }),
     );
+    if (archetype) {
+      controls.appendChild(
+        createInsightControl(id, text, description, {
+          archetype,
+          mbti: entry.mbti,
+          targetSentence: entry.insight_target_sentence,
+          arcanaNote: entry.insight_arcana_note,
+          mbtiNote: entry.insight_mbti_note,
+          stateNote: entry.insight_state_note,
+        }),
+      );
+    }
+    item.appendChild(controls);
   }
   timelineEl.appendChild(item);
 }
 
-function renderImageIntoBox(imageBox, data) {
-  imageBox.textContent = "";
-  const img = document.createElement("img");
-  img.className = "visualize__image";
-  img.src = data.b64 ? `data:image/png;base64,${data.b64}` : data.url;
-  img.alt = data.prompt || "Generated image";
-
-  const caption = document.createElement("p");
-  caption.className = "visualize__caption";
-  caption.textContent = data.prompt;
-
-  imageBox.append(img, caption);
-  imageBox.dataset.loaded = "true";
-}
-
-// Opt-in "🎨 Visualize" control: only fires the (paid) image API when the
-// user explicitly clicks it, never automatically. Shared by World State
-// entries and the per-agent History dropdown, since both list the same
-// underlying world_state rows. If `existing` already has a url (this entry
-// was visualized before, in any past session), the image is already saved
-// server-side — clicking just reveals it, no API call and no cost.
-function createVisualizeControl(worldStateId, existing = {}) {
-  const wrap = document.createElement("div");
-  wrap.className = "visualize";
-
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "visualize__btn";
-
-  const imageBox = document.createElement("div");
-  imageBox.className = "visualize__box";
-  imageBox.hidden = true;
-
-  if (existing.url) {
-    renderImageIntoBox(imageBox, existing);
-    btn.textContent = "🎨 View Image";
-  } else {
-    btn.textContent = "🎨 Visualize";
+function renderTimeline(worldState) {
+  timelineEl.textContent = "";
+  for (const entry of worldState) {
+    appendTimelineEntry(entry);
   }
-
-  btn.addEventListener("click", async () => {
-    if (imageBox.dataset.loaded === "true") {
-      imageBox.hidden = !imageBox.hidden;
-      btn.textContent = imageBox.hidden
-        ? existing.url
-          ? "🎨 View Image"
-          : "🎨 Visualize"
-        : "🎨 Hide image";
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = "Generating…";
-    imageBox.hidden = false;
-    imageBox.textContent = "Generating image…";
-
-    try {
-      const res = await fetch("/api/visualize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ worldStateId }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Failed (${res.status})`);
-      }
-      const data = await res.json();
-      renderImageIntoBox(imageBox, data);
-      btn.textContent = "🎨 Hide image";
-    } catch (err) {
-      imageBox.textContent = `Couldn't generate image: ${err.message}`;
-      btn.textContent = "🎨 Visualize";
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
-  wrap.append(btn, imageBox);
-  return wrap;
 }
+
+// --- conversations panel + transcript modal --------------------------------
 
 function renderConversations(conversations) {
   conversationsEl.textContent = "";
@@ -486,53 +674,21 @@ async function openTranscript(id, archetypeA, archetypeB) {
   transcriptOverlay.hidden = false;
 }
 
-transcriptClose.addEventListener("click", () => {
-  transcriptOverlay.hidden = true;
-});
-transcriptOverlay.addEventListener("click", (e) => {
-  if (e.target === transcriptOverlay) transcriptOverlay.hidden = true;
-});
+// --- generic info modal (also reused by the insight feature above) --------
 
-const INFO_CONTENT = {
-  relationships: {
-    title: "What are Relationships?",
-    body: [
-      "Each row is a running score between two agents — it moves up or down by 1 or 2 points after every tick, based on how one reacts to what the other just did or said.",
-      "The bar is one scale centered on zero, not a comparison between the two names. Filling right (cyan) means positive/friendly; filling left (red) means negative/strained. The two names are just the pair — their left/right position doesn't mean anything, it's not \"who's winning.\"",
-      "Every pair happens to be positive right now, which is why every bar fills the same direction — nothing has gone negative yet.",
-    ],
-  },
-};
+function openInfoModal(title, paragraphs) {
+  infoTitle.textContent = title;
+  infoBody.textContent = "";
+  for (const paragraph of paragraphs) {
+    const p = document.createElement("p");
+    p.className = "info-paragraph";
+    p.textContent = paragraph;
+    infoBody.appendChild(p);
+  }
+  infoOverlay.hidden = false;
+}
 
-document.querySelectorAll(".info-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const content = INFO_CONTENT[btn.dataset.info];
-    if (!content) return;
-    infoTitle.textContent = content.title;
-    infoBody.textContent = "";
-    for (const paragraph of content.body) {
-      const p = document.createElement("p");
-      p.className = "info-paragraph";
-      p.textContent = paragraph;
-      infoBody.appendChild(p);
-    }
-    infoOverlay.hidden = false;
-  });
-});
-
-infoClose.addEventListener("click", () => {
-  infoOverlay.hidden = true;
-});
-infoOverlay.addEventListener("click", (e) => {
-  if (e.target === infoOverlay) infoOverlay.hidden = true;
-});
-
-agentFocusClose.addEventListener("click", () => {
-  agentFocusOverlay.hidden = true;
-});
-agentFocusOverlay.addEventListener("click", (e) => {
-  if (e.target === agentFocusOverlay) agentFocusOverlay.hidden = true;
-});
+// --- toast ------------------------------------------------------------
 
 function showToast(text) {
   const toast = document.createElement("div");
@@ -544,6 +700,8 @@ function showToast(text) {
     setTimeout(() => toast.remove(), 300);
   }, 5000);
 }
+
+// --- top-level orchestration: load the world, run a tick -----------------
 
 async function loadWorld() {
   const res = await fetch("/api/world");
@@ -596,6 +754,39 @@ async function runTick(eventDescription) {
   }
 }
 
+// ============================================================================
+// 4. EVENT LISTENERS
+// ============================================================================
+
+transcriptClose.addEventListener("click", () => {
+  transcriptOverlay.hidden = true;
+});
+transcriptOverlay.addEventListener("click", (e) => {
+  if (e.target === transcriptOverlay) transcriptOverlay.hidden = true;
+});
+
+document.querySelectorAll(".info-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const content = INFO_CONTENT[btn.dataset.info];
+    if (!content) return;
+    openInfoModal(content.title, content.body);
+  });
+});
+
+infoClose.addEventListener("click", () => {
+  infoOverlay.hidden = true;
+});
+infoOverlay.addEventListener("click", (e) => {
+  if (e.target === infoOverlay) infoOverlay.hidden = true;
+});
+
+agentFocusClose.addEventListener("click", () => {
+  agentFocusOverlay.hidden = true;
+});
+agentFocusOverlay.addEventListener("click", (e) => {
+  if (e.target === agentFocusOverlay) agentFocusOverlay.hidden = true;
+});
+
 tickForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const eventDescription = eventInput.value.trim();
@@ -606,6 +797,10 @@ tickForm.addEventListener("submit", async (e) => {
     alert(err.message);
   }
 });
+
+// ============================================================================
+// 5. INIT
+// ============================================================================
 
 loadWorld().catch((err) => {
   timelineEl.textContent = `Failed to load: ${err.message}`;

@@ -94,3 +94,36 @@ model update changing behavior. A stretch goal: a small eval script that
 runs a few ticks against fixed seed data and flags obvious regressions
 (banned words reappearing, JSON parse failure rate, proposal length/
 concreteness heuristics) so drift gets caught before you spot it manually.
+
+## 5. Build the relationship model overhaul as a teaching session
+
+When we actually build item #1 above (or any future feature), do it as a
+guided walkthrough instead of Claude just writing the code: one file at a
+time, and for each file — every function explained, the exact line it goes
+on, why it's wired to the files/functions around it, and every technical
+term defined the moment it's used rather than assumed. The goal is
+understanding the codebase well enough to extend it solo, not just having
+the feature exist.
+
+## 6. Universal separation of concerns (banner-comment convention)
+
+`app.js` is now organized into five fixed, always-in-order sections, each
+fenced by a `// ====...====` banner and declared in a legend at the top:
+Constants, DOM References, Functions, Event Listeners, Init. Apply this
+same convention to the rest of the codebase eventually — `style.css` and
+the `server/*.js` files don't have it yet. Not urgent, but do it file by
+file as each one gets touched anyway, rather than a big-bang pass.
+
+## 7. Expand beyond the 4 MVP agents into more of the 22 Arcana
+
+`archetope-reference.md` already has light/shadow written for all 22 Major
+Arcana — only 4 have MBTI assigned and are wired up as actual agents. Any
+newly added archetype must get the same treatment the current 4 just
+got: its own specific VOICE (sentence rhythm, directness, hedging) and its
+own HUMOR branch (not just "funnier" or "more serious" than the others —
+a genuinely different kind of humor, the way Tower's deadpan, Hierophant's
+dry literalism, Star's bittersweet whimsy, and Magician's sardonic wit are
+each a different branch, not four points on one scale). This is a separate
+feature from item #1 (relationship decay) — more agents changes what
+they talk about, not how the relationship score is computed; both are
+worth doing, but neither substitutes for the other.

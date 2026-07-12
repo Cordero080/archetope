@@ -143,3 +143,8 @@ See `docs/STRETCH_GOALS.md` for the known architectural gaps — most
 notably the relationship model, which is currently a single running scalar
 and has gone stale (no decay, no texture, and it ignores history data
 already being collected in the database).
+
+`docs/design-notes/` records specific design decisions and the reasoning
+behind them, for anyone extending this later — starting with why exotic,
+physics-defying technology has to be *earned* through concrete prerequisites
+rather than just declared into existence.
