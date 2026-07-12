@@ -136,3 +136,10 @@ public/
 Tower vs. Hierophant is built-in conflict (revolutionary vs.
 institution-builder). See `archetope-reference.md` for the full 22-arcana
 reference and MBTI reasoning.
+
+## What's next
+
+See `docs/STRETCH_GOALS.md` for the known architectural gaps — most
+notably the relationship model, which is currently a single running scalar
+and has gone stale (no decay, no texture, and it ignores history data
+already being collected in the database).
