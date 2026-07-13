@@ -16,9 +16,10 @@ type, which supplies the more modern, specific "how this personality
 actually processes and decides" layer on top of the archetype's broader
 "what this personality values" layer.
 
-Every agent also carries full 2026 knowledge — they reach for load cells,
-powered tools, and shared spec docs, and will self-correct out loud if they
-catch themselves defaulting to something primitive.
+Each archetype is a personality, set in the present day — every agent
+carries full 2026 knowledge, reaches for load cells, powered tools, and
+shared spec docs, and will self-correct out loud if they catch themselves
+defaulting to something primitive.
 
 ## What this is actually testing
 
@@ -69,9 +70,8 @@ What's actually shown up so far, running it:
   specific branch of HUMOR — a genuinely different comedic register per
   archetype: deadpan, dry literalism, bittersweet whimsy, sardonic wit — the
   differentiation became sharper and immediate rather than emergent-over-time.
-  Worth knowing if you
-  extend this: the system is more robust to this kind of failure than
-  expected, but the explicit identity clearly still matters.
+  Worth knowing if you extend this: the system is more robust to this kind of
+  failure than expected, but the explicit identity clearly still matters.
 - **A visible bias worth knowing about, now fixed twice.** The image
   generation step's own prompt-crafting call (separate from the agents'
   actual words) defaulted first to a moody medieval/mythic look — a hooded
