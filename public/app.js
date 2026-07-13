@@ -88,7 +88,11 @@ const infoBody = document.getElementById("info-body");
 const infoClose = document.getElementById("info-close");
 const agentFocusOverlay = document.getElementById("agent-focus-overlay");
 const agentFocusTitle = document.getElementById("agent-focus-title");
+const agentFocusTabs = document.getElementById("agent-focus-tabs");
 const agentFocusBody = document.getElementById("agent-focus-body");
+const agentFocusConversations = document.getElementById(
+  "agent-focus-conversations",
+);
 const agentFocusClose = document.getElementById("agent-focus-close");
 
 // ============================================================================
@@ -443,6 +447,22 @@ function openAgentFocus(agent, latest, agentHistory) {
   agentFocusBody.appendChild(
     buildAgentContent(agent, latest, agentHistory, { historyExpanded: true }),
   );
+
+  renderAgentFocusConversations(agent);
+
+  // Always reopen on the Profile tab, regardless of which tab was active
+  // last time this modal was open (for this agent or a different one).
+  agentFocusTabs
+    .querySelectorAll(".agent-focus-tab")
+    .forEach((tab) =>
+      tab.classList.toggle(
+        "agent-focus-tab--active",
+        tab.dataset.tab === "profile",
+      ),
+    );
+  agentFocusBody.hidden = false;
+  agentFocusConversations.hidden = true;
+
   agentFocusOverlay.hidden = false;
 }
 
@@ -631,6 +651,38 @@ function renderTimeline(worldState) {
 
 // --- conversations panel + transcript modal --------------------------------
 
+// Builds one clickable conversation row — shared by the main Conversations
+// panel and the agent-focus modal's Conversations tab (same row, two places
+// it can appear, filtered differently).
+function createConversationRow(conv) {
+  const row = document.createElement("button");
+  row.type = "button";
+  row.className = "conv-row";
+
+  const head = document.createElement("div");
+  head.className = "conv-row__head";
+
+  const pair = document.createElement("span");
+  pair.className = "conv-row__pair";
+  pair.textContent = `${conv.archetype_a} ↔ ${conv.archetype_b}`;
+
+  const time = document.createElement("span");
+  time.className = "conv-row__time";
+  time.textContent = formatRelativeTime(conv.started_at);
+
+  head.append(pair, time);
+
+  const snippet = document.createElement("span");
+  snippet.className = "conv-row__snippet";
+  snippet.textContent = conv.last_message || "";
+
+  row.append(head, snippet);
+  row.addEventListener("click", () =>
+    openTranscript(conv.id, conv.archetype_a, conv.archetype_b),
+  );
+  return row;
+}
+
 function renderConversations(conversations) {
   conversationsEl.textContent = "";
   if (conversations.length === 0) {
@@ -642,40 +694,44 @@ function renderConversations(conversations) {
   }
 
   for (const conv of conversations) {
-    const row = document.createElement("button");
-    row.type = "button";
-    row.className = "conv-row";
-
-    const head = document.createElement("div");
-    head.className = "conv-row__head";
-
-    const pair = document.createElement("span");
-    pair.className = "conv-row__pair";
-    pair.textContent = `${conv.archetype_a} ↔ ${conv.archetype_b}`;
-
-    const time = document.createElement("span");
-    time.className = "conv-row__time";
-    time.textContent = formatRelativeTime(conv.started_at);
-
-    head.append(pair, time);
-
-    const snippet = document.createElement("span");
-    snippet.className = "conv-row__snippet";
-    snippet.textContent = conv.last_message || "";
-
-    row.append(head, snippet);
-    row.addEventListener("click", () =>
-      openTranscript(conv.id, conv.archetype_a, conv.archetype_b),
-    );
-    conversationsEl.appendChild(row);
+    conversationsEl.appendChild(createConversationRow(conv));
   }
 }
+
+// Cache of the last-fetched conversation list, so the agent-focus modal's
+// Conversations tab can filter to one agent without an extra network call —
+// it's already loaded for the main Conversations panel.
+let latestConversations = [];
 
 async function loadConversations() {
   const res = await fetch("/api/conversations");
   if (!res.ok) return;
   const data = await res.json();
+  latestConversations = data.conversations;
   renderConversations(data.conversations);
+}
+
+// Filters the cached conversation list down to ones this specific agent
+// took part in, for the focus modal's Conversations tab.
+function renderAgentFocusConversations(agent) {
+  agentFocusConversations.textContent = "";
+  const own = latestConversations.filter(
+    (conv) =>
+      conv.archetype_a === agent.archetype ||
+      conv.archetype_b === agent.archetype,
+  );
+
+  if (own.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "conversations__empty";
+    empty.textContent = `${agent.archetype} hasn't had a direct conversation yet.`;
+    agentFocusConversations.appendChild(empty);
+    return;
+  }
+
+  for (const conv of own) {
+    agentFocusConversations.appendChild(createConversationRow(conv));
+  }
 }
 
 async function openTranscript(id, archetypeA, archetypeB) {
@@ -826,6 +882,22 @@ agentFocusClose.addEventListener("click", () => {
 });
 agentFocusOverlay.addEventListener("click", (e) => {
   if (e.target === agentFocusOverlay) agentFocusOverlay.hidden = true;
+});
+
+// One listener for both tab buttons (event delegation) rather than
+// re-attaching a listener every time openAgentFocus runs — the buttons are
+// static HTML, they only need wiring once.
+agentFocusTabs.addEventListener("click", (e) => {
+  const tab = e.target.closest(".agent-focus-tab");
+  if (!tab) return;
+
+  agentFocusTabs
+    .querySelectorAll(".agent-focus-tab")
+    .forEach((t) => t.classList.toggle("agent-focus-tab--active", t === tab));
+
+  const showProfile = tab.dataset.tab === "profile";
+  agentFocusBody.hidden = !showProfile;
+  agentFocusConversations.hidden = showProfile;
 });
 
 tickForm.addEventListener("submit", async (e) => {

@@ -234,7 +234,11 @@
 }
 
 /* === focus modal — same card pieces above, shown bigger === */
-.agent-focus-card {
+/* Compound selector (not just .agent-focus-card) so this reliably beats
+   .transcript-card's base size regardless of which CSS file loads last —
+   two same-specificity single-class rules would otherwise be a coin flip
+   decided by import order in main.css. */
+.transcript-card.agent-focus-card {
   width: min(960px, 94vw);
   max-height: 92vh;
   padding: 2.5rem;
@@ -247,6 +251,44 @@
   gap: 0.6rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 1rem;
+}
+
+.agent-focus-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.25rem 0 1.5rem;
+}
+
+.agent-focus-tab {
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.agent-focus-tab:hover {
+  color: var(--agent-color, var(--text-primary));
+}
+.agent-focus-tab--active {
+  color: var(--agent-color, #fff);
+  border-color: var(--agent-color, rgba(0, 212, 255, 0.4));
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.agent-focus-conversations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .agent-focus-body .state-badge {
