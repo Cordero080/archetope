@@ -1,33 +1,40 @@
 # Archetope
 
-A social-science experiment: what happens when you give autonomous LLM
-agents fixed, distinct personalities and let them build a shared world
-together, tick by tick, with real memory and evolving relationships?
+Every culture that's built gods built the same kind of thing: a figure
+that's one human trait taken all the way — War, Wisdom, Fertility, Chaos —
+not a diluted person carrying a bit of everything, but that single trait in
+its pure, undiluted form. Real humans don't work that way; we carry all of
+these partially, in tension, mixed together. The gods were what it looks
+like when one trait goes all the way through a person instead of staying
+mixed in with the rest.
 
-The personality source is Jungian archetypal psychology. Carl Jung
-theorized a set of recurring archetypal patterns in the human psyche — the
-Self, the Shadow, the Trickster, the Wise Elder, and so on. The tarot's 22
-Major Arcana are a long-recognized symbolic catalog of that same territory:
-a pre-built, culturally legible taxonomy of human archetypal roles, each
-with a constructive ("light") and a corrupted ("shadow") expression. This
-project uses that catalog as fixed personality scaffolding. Each archetype
-is additionally cross-referenced with a Myers-Briggs (MBTI) cognitive-style
-type, which supplies the more modern, specific "how this personality
-actually processes and decides" layer on top of the archetype's broader
-"what this personality values" layer.
+Tarot's 22 Major Arcana are the same catalog in symbolic form — the Self,
+the Shadow, the Trickster, the Wise Elder, and so on, each with a
+constructive ("light") and a corrupted ("shadow") expression. Myers-Briggs
+(MBTI) is the modern, clinical descendant of the same instinct: a system
+for cataloging how people fundamentally differ in how they process the
+world and make decisions.
 
-Each archetype is a personality, set in the present day — every agent
-carries full 2026 knowledge, reaches for load cells, powered tools, and
-shared spec docs, and will self-correct out loud if they catch themselves
-defaulting to something primitive.
+Archetope takes that lineage and runs an experiment with it: give each of
+the pure archetypal forms — not a diluted human, but the full, undiluted
+trait — a Myers-Briggs cognitive style on top, contemporary intelligence
+(an LLM), and a modern world, and have them build a civilization together,
+one tick at a time, with real memory and evolving relationships between
+them. What kind of world do undiluted archetypes build?
 
-## What this is actually testing
+## What would count as a result
 
-The underlying question: do small, fixed personality differences (an
-archetype's light/shadow poles crossed with an MBTI cognitive style) produce
-_distinguishable, consistent_ group dynamics once agents have persistent
-memory, a running relationship score with each other, and a shared world
-they can see the history of — without ever being told what conflict to have?
+The underlying question: do small, fixed personality differences —
+an archetype's light/shadow poles crossed with an MBTI cognitive style —
+produce _distinguishable, consistent_ group dynamics once agents have
+persistent memory, a running relationship score with each other, and a
+shared world they can see the history of, without ever being told what
+conflict to have? A positive result looks like agents pulling toward
+different goals for reasons that trace back to their archetype and MBTI
+pairing, consistently, across many ticks, rather than random or
+interchangeable behavior.
+
+## Findings
 
 What's actually shown up so far, running it:
 
@@ -55,23 +62,6 @@ What's actually shown up so far, running it:
   from the Hierophant's passive precedent-reverence, and it wasn't designed
   in beyond "give this archetype a light/shadow and an MBTI" — the specific
   behavior (safety gating, docking a peer's trust) emerged on its own.
-- **An important caveat about all of the above.** For a meaningful stretch
-  of this project, a real bug meant each agent's actual personality
-  description was never being delivered to the model at all — a naming
-  mismatch (`identityBlock` vs. the database's `identity_block`) silently
-  sent the literal text `"undefined"` in place of the identity, for every
-  tick and every conversation. Everything described above still happened.
-  What the model had to work with instead was indirect: archetype-labeled
-  entries in the shared world-state log, and each agent's own accumulating
-  memory of what it had previously said — enough, apparently, for a capable
-  model to infer and hold a consistent identity even without being told it
-  directly. Once the bug was found and fixed, and each agent was given an
-  explicit, distinct VOICE (sentence rhythm, directness, hedging) and a
-  specific branch of HUMOR — a genuinely different comedic register per
-  archetype: deadpan, dry literalism, bittersweet whimsy, sardonic wit — the
-  differentiation became sharper and immediate rather than emergent-over-time.
-  Worth knowing if you extend this: the system is more robust to this kind of
-  failure than expected, but the explicit identity clearly still matters.
 - **A visible bias worth knowing about, now fixed twice.** The image
   generation step's own prompt-crafting call (separate from the agents'
   actual words) defaulted first to a moody medieval/mythic look — a hooded
@@ -86,6 +76,53 @@ What's actually shown up so far, running it:
 
 None of this was hand-scripted per-scenario; it's what happened running the
 actual tick loop and reading the actual output.
+
+## The accidental control condition
+
+For a meaningful stretch of this project, a real bug meant each agent's
+actual personality description was never being delivered to the model at
+all. A naming mismatch (`identityBlock` vs. the database's
+`identity_block`) silently sent the literal text `"undefined"` in place of
+the identity, for every tick and every conversation — every finding above
+happened under this condition.
+
+That's effectively an accidental control group: agents with no identity
+block still differentiated from each other, consistently, across ticks.
+What the model had to work with instead was indirect — archetype-labeled
+entries in the shared world-state log, and each agent's own accumulating
+memory of what it had previously said — and that alone was enough for a
+capable model to infer and hold a consistent identity.
+
+Once the bug was found and fixed, and each agent was given an explicit,
+distinct VOICE (sentence rhythm, directness, hedging) and a specific branch
+of HUMOR — a genuinely different comedic register per archetype: deadpan,
+dry literalism, bittersweet whimsy, sardonic wit — the differentiation
+became sharper and immediate rather than building up over many ticks. Read
+together, the two halves say something specific: the system tolerates a
+missing identity better than expected, but an explicit identity still
+measurably sharpens it.
+
+## Limitations
+
+This is not a controlled experiment in the scientific sense, and it's
+worth being upfront about the gaps:
+
+- **N=1.** One continuous world, one set of agents, no repeated trials.
+  Nothing here has been replicated across separate runs.
+- **No baseline.** There's no comparison group of generic, personality-less
+  agents running the same tick loop, so "distinguishable dynamics" is
+  judged by reading the output rather than measured against a control.
+- **No blinding.** I write the instructions, pick the events, and read the
+  transcripts — the read of "this looks like the Tower's personality" is
+  my own judgment, not an independent rater's.
+- **Small roster.** Five archetypes so far, out of 22. Dynamics could look
+  different — or the same conflicts could just repeat — at a larger roster
+  size.
+
+These are also the roadmap: repeat runs, a personality-less baseline group,
+and growing the roster toward the full 22 are the concrete ways to turn
+"anecdotes I find compelling" into something closer to evidence. See
+`docs/STRETCH_GOALS.md` for the rest of the architectural gaps.
 
 ## Running it
 
@@ -140,52 +177,7 @@ The web app is the primary way to use this now: a live dashboard with a
 - **Gallery** (`gallery.html`) — every image ever generated, in one place,
   with its archetype, timestamp, and original context.
 
-## Architecture
-
-```
-db/
-  schema.sql        Postgres schema (agents, relationships, world_state,
-                     memory, events, conversations, conversation_turns,
-                     generated_images, insights)
-  migrate.js        applies schema.sql against DATABASE_URL, idempotent
-
-server/
-  identities.js     each agent's system prompt: archetype + MBTI + light/
-                     shadow + a distinct VOICE and HUMOR branch, plus the
-                     shared instructions (modern plain language, 2026
-                     tech-awareness, concreteness, earned-not-declared
-                     exotic technology — see docs/design-notes/)
-  agentClient.js    one Anthropic API call per agent; parses the structured
-                     JSON reply, with a resilient fallback if a reply gets
-                     truncated
-  orchestrator.js   the tick loop — fires an event, collects each agent's
-                     stigmergic reaction, writes world_state/relationships/
-                     memory, then runs one direct conversation between two
-                     agents per tick
-  conversation.js   turn-taking dialogue between two agents — each sees the
-                     other's actual words directly
-  imageClient.js    crafts a visual prompt from a world_state entry (Claude),
-                     then generates the image (OpenAI), in a consistent
-                     minimal-cyberpunk style
-  insightClient.js  a separate, on-demand call that identifies which exact
-                     phrase in an agent's own words reveals their
-                     archetypal/MBTI signature, and explains why
-  api.js            the REST API + static file server for the web app
-  db.js             shared Postgres pool
-  seed.js           idempotent one-time seed + first tick (console script)
-
-public/
-  index.html/app.js             the live dashboard
-  gallery.html/gallery.js       the generated-image gallery
-  styles/                       10 single-concern CSS files (tokens, layout,
-                     agent-card, entry-widgets, relationships, timeline,
-                     conversations, modals, toast, gallery), wired through
-                     styles/main.css as the single entry point both HTML
-                     pages load
-  fonts/                        self-hosted display font for the wordmark
-```
-
-## The MVP agents
+## The agents so far
 
 | Archetype      | MBTI | Light                           | Shadow                       |
 | -------------- | ---- | ------------------------------- | ---------------------------- |
@@ -199,19 +191,14 @@ Tower vs. Hierophant is built-in conflict (revolutionary vs.
 institution-builder). See `archetope-reference.md` for the full 22-arcana
 reference and MBTI reasoning — every archetype has light/shadow defined
 there already; only the ones instantiated as agents above have an MBTI
-assigned. The intent is to eventually grow this roster toward the full 22,
-each new archetype getting the same treatment (real MBTI reasoning, a
-distinct voice, a distinct branch of humor) — expanding the experiment's
+assigned. The plan is to grow this roster toward the full 22, each new
+archetype getting the same treatment (real MBTI reasoning, a distinct
+voice, a distinct branch of humor), which also expands the experiment's
 sample size.
 
-## What's next
+## Architecture
 
-See `docs/STRETCH_GOALS.md` for the known architectural gaps — most
-notably the relationship model, which is currently a single running scalar
-and has gone stale (no decay, no texture, and it ignores history data
-already being collected in the database).
-
-`docs/design-notes/` records specific design decisions and the reasoning
-behind them, for anyone extending this later — starting with why exotic,
-physics-defying technology has to be _earned_ through concrete prerequisites
-rather than just declared into existence.
+See `docs/ARCHITECTURE.md` for the file-by-file breakdown, and
+`docs/design-notes/` for the reasoning behind specific design decisions —
+starting with why exotic, physics-defying technology has to be _earned_
+through concrete prerequisites rather than just declared into existence.
