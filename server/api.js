@@ -99,7 +99,7 @@ app.get("/api/conversations/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { rows: turns } = await query(
-      `SELECT t.turn_index, t.message, t.created_at, a.key AS agent_key, a.archetype
+      `SELECT t.turn_index, t.message, t.tone, t.created_at, a.key AS agent_key, a.archetype
        FROM conversation_turns t
        JOIN agents a ON a.id = t.agent_id
        WHERE t.conversation_id = $1
@@ -107,7 +107,14 @@ app.get("/api/conversations/:id", async (req, res) => {
       [id],
     );
     if (turns.length === 0) return res.status(404).json({ error: "Not found" });
-    res.json({ id, turns });
+    const { rows: eventRows } = await query(
+      `SELECT e.description AS event_description
+       FROM conversations c
+       JOIN events e ON e.id = c.event_id
+       WHERE c.id = $1`,
+      [id],
+    );
+    res.json({ id, eventDescription: eventRows[0]?.event_description, turns });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

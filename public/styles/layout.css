@@ -7,14 +7,162 @@
   padding: 2rem 1.5rem 3rem;
 }
 
-/* === topbar === */
+/* === topbar ===
+   Shape borrowed from Pneumata's App.jsx header: a slim decorative accent
+   tab chamfered on its outer edge, interlocked against a chamfered console
+   panel that holds the actual controls (a matching notch cut into the
+   panel's own corner is where the accent's edge shows through). */
 .topbar {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 2rem;
+}
+
+.topbar__accent {
+  position: relative;
+  flex-shrink: 0;
+  width: 3.25rem;
+  margin-right: calc(-1 * var(--chamfer-md));
+  background: var(--dark-surface);
+  border-top: 1px solid rgba(120, 160, 220, 0.55);
+  border-right: 3px solid rgba(0, 0, 0, 0.5);
+  border-bottom: 5px solid rgba(80, 120, 200, 0.2);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--chamfer-md) 100%,
+    0 calc(100% - var(--chamfer-md))
+  );
+}
+
+/* Fills .topbar__accent — the actual clickable nav trigger. Pulses gently
+   while closed to signal it's interactive, same as Pneumata's
+   header-nav-trigger (Pneumata/src/styles/_app-buttons.scss:19-63). */
+@keyframes topbar-trigger-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.9);
+  }
+}
+.header-nav-trigger {
+  position: absolute;
+  inset: 0;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  font-family: var(--font-hud);
+  font-size: 1.1rem;
+  color: rgba(230, 240, 255, 0.85);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--chamfer-md) 100%,
+    0 calc(100% - var(--chamfer-md))
+  );
+  animation: topbar-trigger-pulse 2.8s ease-in-out infinite;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+.header-nav-trigger:hover {
+  animation: none;
+  color: #fff;
+  background: rgba(0, 212, 255, 0.12);
+}
+.header-nav-trigger--open {
+  animation: none;
+  color: #fff;
+  background: rgba(0, 212, 255, 0.18);
+}
+
+/* Vertical drop-down, anchored below the accent tab specifically (not the
+   whole header) — a sibling of .topbar__accent, not nested inside it, since
+   clip-path on an ancestor clips its descendants' paint region too and
+   would slice off anything positioned outside that box. */
+.top-nav-drawer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  width: 3.25rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.top-nav-drawer--open {
+  max-height: 20rem;
+}
+.drawer-item {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.5rem;
+  margin-top: -1px;
+  font-family: var(--font-hud);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-dim);
+  background: var(--dark-surface);
+  border: none;
+  border-right: 3px solid rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(80, 120, 200, 0.2);
+  cursor: not-allowed;
+}
+
+.topbar__panel {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
-  margin-bottom: 2rem;
+  padding: 1.1rem 1.5rem 1.1rem calc(1.5rem + var(--chamfer-md));
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-left: none;
+  /* drop-shadow, not box-shadow — box-shadow ignores clip-path's cut shape
+     and bleeds straight into the notch void, smudging over the accent
+     button sitting behind it. drop-shadow follows the actual clipped alpha
+     shape instead (same reason Pneumata's .header-strip uses it). */
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer-md)) 0,
+    100% var(--chamfer-md),
+    100% 100%,
+    var(--chamfer-md) 100%,
+    var(--chamfer-md) var(--chamfer-md)
+  );
+}
+
+@media (max-width: 600px) {
+  .topbar__accent {
+    display: none;
+  }
+  .top-nav-drawer {
+    display: none;
+  }
+  .topbar__panel {
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--chamfer-md)) 0,
+      100% var(--chamfer-md),
+      100% 100%,
+      var(--chamfer-md) 100%,
+      0 calc(100% - var(--chamfer-md))
+    );
+    padding-left: 1.5rem;
+  }
 }
 
 .topbar__title {
@@ -38,8 +186,8 @@
 
 .topbar__controls {
   display: flex;
-  gap: 0.6rem;
-  align-items: center;
+  gap: 0.6rem 0;
+  align-items: stretch;
   flex-wrap: wrap;
 }
 
@@ -62,16 +210,29 @@
   border-color: rgba(0, 212, 255, 0.35);
 }
 
+/* .event-input's right edge and #tick-btn's left edge are cut as a
+   notch + tongue pair (same technique as Pneumata's about-btn →
+   vcontrols-trigger seam: Pneumata/src/components/about/_buttons.scss:6-59),
+   then pulled together with a small negative margin so the diagonal cuts
+   read as one interlocking piece instead of two separate rectangles. */
 .event-input {
   font-family: var(--font-sans);
   font-size: 0.9rem;
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(0, 212, 255, 0.2);
-  border-radius: 4px;
+  border-right: none;
   padding: 0.55rem 0.8rem;
   width: 320px;
   max-width: 60vw;
+  margin-right: calc(-1 * var(--chamfer-md) + 3px);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer-md)) 0,
+    calc(100% - var(--chamfer-md)) calc(100% - var(--chamfer-md)),
+    100% 100%,
+    0 100%
+  );
 }
 .event-input:focus {
   outline: none;
@@ -106,6 +267,23 @@
     filter 0.2s ease,
     transform 0.15s ease,
     border-color 0.2s ease;
+}
+/* #tick-btn sits directly against .event-input's tongue. Top-left stays
+   square/flat (butts against the input's flat top edge), but the other
+   three corners are all chamfered: bottom-left concave so it actually
+   sockets against the input's tongue instead of meeting it with a flat
+   edge, and top-right/bottom-right chamfered too so the outer end of the
+   pill isn't left square. */
+.event-input + .chamfer-btn {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--chamfer-md)) 0,
+    100% var(--chamfer-md),
+    100% calc(100% - var(--chamfer-md)),
+    calc(100% - var(--chamfer-md)) 100%,
+    var(--chamfer-md) 100%,
+    0 calc(100% - var(--chamfer-md))
+  );
 }
 .chamfer-btn:hover {
   color: #fff;
@@ -192,8 +370,24 @@
   .layout {
     grid-template-columns: 1fr;
   }
+  /* Form wraps to its own row at this width, so input and button are no
+     longer adjacent — drop the interlock and go back to plain edges. */
   .event-input {
     width: 100%;
     max-width: none;
+    border-right: 1px solid rgba(0, 212, 255, 0.2);
+    margin-right: 0;
+    clip-path: none;
+    border-radius: 4px;
+  }
+  .event-input + .chamfer-btn {
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--chamfer-md)) 0,
+      100% var(--chamfer-md),
+      100% 100%,
+      var(--chamfer-md) 100%,
+      0 calc(100% - var(--chamfer-md))
+    );
   }
 }

@@ -79,8 +79,18 @@
   font-family: var(--font-hud);
   font-size: 0.95rem;
   letter-spacing: 0.08em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.6rem;
   padding-right: 2rem;
+}
+
+.transcript-context {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--text-dim);
+  border-left: 2px solid rgba(0, 212, 255, 0.35);
+  padding-left: 0.7rem;
+  margin-bottom: 1.25rem;
 }
 
 .transcript-turn {
@@ -112,6 +122,29 @@
   font-size: 0.68rem;
   color: var(--text-dim);
   opacity: 0.7;
+}
+
+.transcript-turn__tone {
+  flex-shrink: 0;
+  font-family: var(--font-hud);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+.transcript-turn__tone--conflict {
+  color: #ff5c5c;
+  background: rgba(255, 49, 49, 0.12);
+}
+.transcript-turn__tone--humor {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+}
+.transcript-turn__tone--friendly {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
 }
 
 .transcript-turn__message {

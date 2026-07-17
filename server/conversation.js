@@ -4,6 +4,7 @@
 // loop's one-shot "what do you build" proposals.
 import { query } from "./db.js";
 import { callAgentRaw } from "./agentClient.js";
+import { classifyTone } from "./toneClient.js";
 
 const TURNS_PER_CONVERSATION = 4;
 
@@ -68,6 +69,8 @@ export async function runConversation({
       150,
     );
 
+    const tone = await classifyTone(message);
+
     transcriptText += `${speaker.archetype}: ${message}\n`;
     turns.push({
       turnIndex: i,
@@ -78,9 +81,9 @@ export async function runConversation({
     });
 
     await query(
-      `INSERT INTO conversation_turns (conversation_id, agent_id, turn_index, message)
-       VALUES ($1, $2, $3, $4)`,
-      [conversationId, speaker.id, i, message],
+      `INSERT INTO conversation_turns (conversation_id, agent_id, turn_index, message, tone)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [conversationId, speaker.id, i, message, tone],
     );
   }
 

@@ -9,23 +9,41 @@
   <body>
     <div class="app">
       <header class="topbar">
-        <div class="topbar__brand">
-          <h1 class="topbar__title">ARCHETOPE</h1>
-          <p class="topbar__tagline">emergent society · one tick at a time</p>
-        </div>
-        <a class="gallery-link" href="gallery.html">🖼 Gallery</a>
-        <form class="topbar__controls" id="tick-form">
-          <input
-            type="text"
-            id="event-input"
-            class="event-input"
-            placeholder="Describe the next event… (optional)"
-            autocomplete="off"
-          />
-          <button type="submit" class="chamfer-btn" id="tick-btn">
-            <span>RUN NEXT TICK</span>
+        <div class="topbar__accent">
+          <button
+            type="button"
+            id="nav-trigger"
+            class="header-nav-trigger"
+            aria-label="Open nav menu"
+            aria-expanded="false"
+          >
+            ⊞︎
           </button>
-        </form>
+        </div>
+        <div class="top-nav-drawer" id="top-nav-drawer">
+          <button type="button" class="drawer-item" disabled>
+            More — coming soon
+          </button>
+        </div>
+        <div class="topbar__panel">
+          <div class="topbar__brand">
+            <h1 class="topbar__title">ARCHETOPE</h1>
+            <p class="topbar__tagline">emergent society · one tick at a time</p>
+          </div>
+          <a class="gallery-link" href="gallery.html">🖼 Gallery</a>
+          <form class="topbar__controls" id="tick-form">
+            <input
+              type="text"
+              id="event-input"
+              class="event-input"
+              placeholder="Describe the next event… (optional)"
+              autocomplete="off"
+            />
+            <button type="submit" class="chamfer-btn" id="tick-btn">
+              <span>RUN NEXT TICK</span>
+            </button>
+          </form>
+        </div>
       </header>
 
       <main class="layout">
@@ -67,6 +85,7 @@
           ×
         </button>
         <h2 class="transcript-title" id="transcript-title"></h2>
+        <p class="transcript-context" id="transcript-context"></p>
         <div class="transcript-body" id="transcript-body"></div>
       </div>
     </div>
@@ -115,6 +134,6 @@
       </div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>

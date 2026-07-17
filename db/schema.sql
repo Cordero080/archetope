@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS conversation_turns (
 
 CREATE INDEX IF NOT EXISTS idx_conversation_turns_conv ON conversation_turns(conversation_id, turn_index);
 
+ALTER TABLE conversation_turns ADD COLUMN IF NOT EXISTS tone TEXT CHECK (tone IN ('conflict', humor', 'friendly'));
+
 -- One generated image per world_state entry, permanently. UNIQUE constraint
 -- means a click on an already-visualized entry can never trigger a second
 -- (paid) generation — the API just returns the saved row.
