@@ -1,5 +1,6 @@
 // Small, dependency-free utilities shared across every other module.
 
+// ---------- CONFIG ----------
 export const ACCENTS = {
   tower: "var(--c-tower)",
   hierophant: "var(--c-hierophant)",
@@ -8,6 +9,7 @@ export const ACCENTS = {
   emperor: "var(--c-emperor)",
 };
 
+// ---------- HELPERS ----------
 export function accentFor(key) {
   return ACCENTS[key] || "var(--glass-border)";
 }

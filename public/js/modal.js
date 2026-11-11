@@ -3,11 +3,13 @@
 // close-button/backdrop-click wiring, so everything about "how this modal
 // works" lives in one file.
 
+// ---------- CONFIG ----------
 const infoOverlay = document.getElementById("info-overlay");
 const infoTitle = document.getElementById("info-title");
 const infoBody = document.getElementById("info-body");
 const infoClose = document.getElementById("info-close");
 
+// ---------- MAIN ----------
 export function openInfoModal(title, paragraphs) {
   infoTitle.textContent = title;
   infoBody.textContent = "";
@@ -20,6 +22,7 @@ export function openInfoModal(title, paragraphs) {
   infoOverlay.hidden = false;
 }
 
+// ---------- START ----------
 infoClose.addEventListener("click", () => {
   infoOverlay.hidden = true;
 });

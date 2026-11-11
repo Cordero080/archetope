@@ -1,6 +1,9 @@
 // Opt-in "why did they say that" insight (💡 Explain).
+
+// ---------- IMPORTS ----------
 import { openInfoModal } from "./modal.js";
 
+// ---------- HELPERS ----------
 // Wraps the matched substring in a clickable highlight, splitting the
 // surrounding plain text around it. Returns the highlight span, or null if
 // the model's quoted sentence isn't an exact substring of the real text
@@ -32,6 +35,7 @@ function showInsightModal(data) {
   ]);
 }
 
+// ---------- MAIN ----------
 // Opt-in "why did they say that" control, same cached-forever pattern as
 // createVisualizeControl. `existing` pre-fills from data already saved in
 // a past session (from /api/world), so a page reload doesn't need a click

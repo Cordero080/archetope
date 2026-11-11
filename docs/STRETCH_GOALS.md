@@ -107,12 +107,21 @@ the feature exist.
 
 ## 6. Universal separation of concerns (banner-comment convention)
 
-`app.js` is now organized into five fixed, always-in-order sections, each
-fenced by a `// ====...====` banner and declared in a legend at the top:
-Constants, DOM References, Functions, Event Listeners, Init. Apply this
-same convention to the rest of the codebase eventually — `style.css` and
-the `server/*.js` files don't have it yet. Not urgent, but do it file by
-file as each one gets touched anyway, rather than a big-bang pass.
+**Done.** Every JS file in the project is now organized into fixed,
+always-in-order sections, each fenced by a `// ---------- NAME ----------`
+banner: IMPORTS, CONFIG, HELPERS, MAIN, START (a section with nothing in it
+is skipped — most files have three or four). That's all 10 files in
+`public/js/`, `public/gallery.js`, all 11 in `server/`, and `db/migrate.js`.
+
+Note the banner style here is the one in `~/.claude/CLAUDE.md`, not the
+`// ====...====` / Constants-DOM-Functions-Listeners-Init scheme this item
+originally described for the old monolithic `app.js` — that file no longer
+exists, having been split into `public/js/*.js`, and the global conventions
+file wins over this doc.
+
+Still outstanding: the CSS files in `public/styles/` have no section
+banners. Do those file by file as each gets touched, rather than a
+big-bang pass.
 
 ## 7. Expand beyond the 4 MVP agents into more of the 22 Arcana
 

@@ -4,6 +4,7 @@
 // justifications. Keep each `identity_block` compact (~50-100 tokens) —
 // it's the system prompt on every single API call this agent makes.
 
+// ---------- CONFIG ----------
 export const CORE_INSTRUCTIONS = `You have full contemporary (2026) human knowledge — science, technology, history, culture — and reason with it freely. You are not naive to the modern world; you bring ancient archetypal instinct to bear on it. Your archetype never changes, although it may evolve. Only your light/shadow expression, relationships, and memories shift over time.
 
 Speak in modern, plain language — no archaic or biblical phrasing ("thee/thou", "let this be our founding law"), no poetic or nature metaphor of any kind (no roots, veins, hearths, stones, claws, or the earth "answering" you). Describe literally what you do and why. This applies even if the world-state history below was written in a flowery, old-fashioned style — ignore that style completely, regardless of how past entries sound. Beyond that floor, your specific voice — sentence rhythm, bluntness vs. warmth, sense of humor — is defined in your identity above. Follow that voice, not a generic neutral tone.
@@ -86,6 +87,7 @@ export const AGENTS = [
 
 const VALID_KEYS = AGENTS.map((a) => `${a.key} (${a.archetype})`).join(", ");
 
+// ---------- MAIN ----------
 // `agent` here is a row read back from the database (via `SELECT * FROM
 // agents`), which has `identity_block` (the Postgres column name) — not
 // `identityBlock` (the in-memory AGENTS array's JS property name above).

@@ -1,5 +1,7 @@
+// ---------- CONFIG ----------
 const toastStack = document.getElementById("toast-stack");
 
+// ---------- MAIN ----------
 export function showToast(text) {
   const toast = document.createElement("div");
   toast.className = "toast";

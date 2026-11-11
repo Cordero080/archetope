@@ -1,14 +1,18 @@
 // Applies db/schema.sql against DATABASE_URL. Schema uses `CREATE TABLE IF
 // NOT EXISTS`, so this is safe to re-run.
+
+// ---------- IMPORTS ----------
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import "dotenv/config";
 import pg from "pg";
 
+// ---------- CONFIG ----------
 const { Pool } = pg;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// ---------- MAIN ----------
 async function main() {
   const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -20,6 +24,7 @@ async function main() {
   }
 }
 
+// ---------- START ----------
 main().catch((err) => {
   console.error("Migration failed:", err.message);
   process.exit(1);

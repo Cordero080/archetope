@@ -1,16 +1,20 @@
 // Wraps a single Anthropic API call for one agent: builds the per-call
 // context, sends it with the agent's compressed identity as the system
 // prompt, and parses the structured JSON response.
+
+// ---------- IMPORTS ----------
 import Anthropic from "@anthropic-ai/sdk";
 import "dotenv/config";
 import { buildSystemPrompt } from "./identities.js";
 
+// ---------- CONFIG ----------
 export const MODEL = "claude-sonnet-5";
 
 export const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+// ---------- HELPERS ----------
 function buildContextBlock({
   worldStateText,
   relationshipText,
@@ -79,6 +83,7 @@ function parseAgentResponse(rawText, agent) {
   }
 }
 
+// ---------- MAIN ----------
 // Lower-level call shared by the tick loop (structured JSON reply) and
 // conversations (plain spoken text) — same agent identity, different
 // system-prompt suffix and expected reply shape.

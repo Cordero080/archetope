@@ -1,13 +1,17 @@
 // Idempotently seeds the 4 MVP agents + their relationship rows, seeds the
 // initial (empty) world state if it doesn't exist yet, then fires one
 // seeded event and runs a tick. Safe to re-run.
+
+// ---------- IMPORTS ----------
 import { query, pool } from "./db.js";
 import { AGENTS } from "./identities.js";
 import { tick } from "./orchestrator.js";
 
+// ---------- CONFIG ----------
 const SEED_EVENT =
   "The agents awaken in an empty world with abundant raw materials and no rules. Nothing has been built yet.";
 
+// ---------- HELPERS ----------
 async function seedAgents() {
   const ids = {};
   for (const agent of AGENTS) {
@@ -56,6 +60,7 @@ async function seedWorldState() {
   );
 }
 
+// ---------- MAIN ----------
 async function main() {
   console.log("Seeding agents...");
   const ids = await seedAgents();
@@ -68,6 +73,7 @@ async function main() {
   await tick(SEED_EVENT);
 }
 
+// ---------- START ----------
 main()
   .catch((err) => {
     console.error("Seed run failed:", err);

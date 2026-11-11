@@ -1,9 +1,12 @@
 // Turns a world_state entry into an image, entirely opt-in (triggered by a
 // user click, never automatically). Two calls: Claude crafts a concrete
 // visual prompt from the agent's own words, then OpenAI's image API renders it.
+
+// ---------- IMPORTS ----------
 import "dotenv/config";
 import { anthropic, MODEL } from "./agentClient.js";
 
+// ---------- CONFIG ----------
 const IMAGE_MODEL = "gpt-image-1";
 
 const PROMPT_SYSTEM = `You turn a short description of an action into a vivid, concrete visual prompt for an image generator. Depict the scene literally, using only what the description actually says for the setting, tools, and technology. Do NOT add mythic, medieval, ruined, apocalyptic, or tarot-symbolic atmosphere — no crumbling towers, ancient stone, hooded robes, storms, or ruins — unless the description explicitly says so.
@@ -12,6 +15,7 @@ Default aesthetic for any figure in the scene: minimal cyberpunk, not an ordinar
 
 Output ONLY the image prompt itself — one or two sentences describing the physical scene: setting, objects, composition, lighting. No text or words should appear in the image. Style: photorealistic, minimal cyberpunk.`;
 
+// ---------- HELPERS ----------
 async function craftImagePrompt(description) {
   const response = await anthropic.messages.create({
     model: MODEL,
@@ -27,6 +31,7 @@ async function craftImagePrompt(description) {
     .trim();
 }
 
+// ---------- MAIN ----------
 export async function generateImage(description) {
   const prompt = await craftImagePrompt(description);
 

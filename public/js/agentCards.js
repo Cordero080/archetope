@@ -1,9 +1,11 @@
+// ---------- IMPORTS ----------
 import { accentFor, formatRelativeTime } from "./helpers.js";
 import { createVisualizeControl } from "./visualize.js";
 import { createInsightControl } from "./insight.js";
 import { openInfoModal } from "./modal.js";
 import { renderAgentFocusConversations } from "./conversations.js";
 
+// ---------- CONFIG ----------
 const agentsEl = document.getElementById("agents");
 const agentFocusOverlay = document.getElementById("agent-focus-overlay");
 const agentFocusTitle = document.getElementById("agent-focus-title");
@@ -47,6 +49,7 @@ const MBTI_INFO = {
   },
 };
 
+// ---------- HELPERS ----------
 // Shared by the small card and the full-size focus modal, so the two never
 // drift out of sync. historyExpanded=true skips the collapse toggle and
 // shows every entry, for the focus view.
@@ -207,6 +210,7 @@ function openAgentFocus(agent, latest, agentHistory) {
   agentFocusOverlay.hidden = false;
 }
 
+// ---------- MAIN ----------
 export function renderAgents(agents, latestByKey = new Map(), worldState = []) {
   agentsEl.textContent = "";
 
@@ -262,6 +266,7 @@ export function renderAgents(agents, latestByKey = new Map(), worldState = []) {
   }
 }
 
+// ---------- START ----------
 agentFocusClose.addEventListener("click", () => {
   agentFocusOverlay.hidden = true;
 });

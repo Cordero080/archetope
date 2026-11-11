@@ -1,3 +1,4 @@
+// ---------- IMPORTS ----------
 import {
   accentFor,
   formatRelativeTime,
@@ -6,8 +7,10 @@ import {
 import { createVisualizeControl } from "./visualize.js";
 import { createInsightControl } from "./insight.js";
 
+// ---------- CONFIG ----------
 const timelineEl = document.getElementById("timeline");
 
+// ---------- HELPERS ----------
 function appendTimelineEntry(entry) {
   const {
     archetype,
@@ -78,6 +81,7 @@ function appendTimelineEntry(entry) {
   timelineEl.appendChild(item);
 }
 
+// ---------- MAIN ----------
 export function renderTimeline(worldState) {
   timelineEl.textContent = "";
   for (const entry of [...worldState].reverse()) {
