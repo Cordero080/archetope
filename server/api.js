@@ -3,6 +3,8 @@
 // POST /api/tick      — fires a new event, runs one tick, returns each agent's reply
 // POST /api/visualize — generates (or returns the already-saved) image for a world_state entry
 // GET /api/gallery    — every image ever generated, with context, for the gallery page
+
+// ---------- IMPORTS ----------
 import express from "express";
 import path from "path";
 import crypto from "crypto";
@@ -13,11 +15,14 @@ import { tick } from "./orchestrator.js";
 import { generateImage } from "./imageClient.js";
 import { generateInsight } from "./insightClient.js";
 
+// ---------- CONFIG ----------
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 const GENERATED_DIR = path.join(PUBLIC_DIR, "generated");
+const PORT = process.env.PORT || 3001;
 await fs.mkdir(GENERATED_DIR, { recursive: true });
 
+// ---------- MAIN ----------
 const app = express();
 
 app.use(express.json());
@@ -268,7 +273,7 @@ app.get("/api/gallery", async (_req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
+// ---------- START ----------
 app.listen(PORT, () => {
   console.log(`Archetope running at http://localhost:${PORT}`);
 });

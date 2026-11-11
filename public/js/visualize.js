@@ -5,6 +5,7 @@
 // was visualized before, in any past session), the image is already saved
 // server-side — clicking just reveals it, no API call and no cost.
 
+// ---------- HELPERS ----------
 function renderImageIntoBox(imageBox, data) {
   imageBox.textContent = "";
   const img = document.createElement("img");
@@ -20,6 +21,7 @@ function renderImageIntoBox(imageBox, data) {
   imageBox.dataset.loaded = "true";
 }
 
+// ---------- MAIN ----------
 export function createVisualizeControl(worldStateId, existing = {}) {
   const wrap = document.createElement("div");
   wrap.className = "visualize";

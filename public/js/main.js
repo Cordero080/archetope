@@ -3,12 +3,15 @@
 // is top-level orchestration only: load the world, run a tick, wire the
 // page-level controls (nav trigger, tick form). Each feature's own DOM refs,
 // rendering, and local event listeners live in that feature's own file.
+
+// ---------- IMPORTS ----------
 import { renderAgents } from "./agentCards.js";
 import { renderRelationships } from "./relationships.js";
 import { renderTimeline, showTimelineError } from "./timeline.js";
 import { loadConversations } from "./conversations.js";
 import { showToast } from "./toast.js";
 
+// ---------- CONFIG ----------
 const agentsEl = document.getElementById("agents");
 const tickForm = document.getElementById("tick-form");
 const tickBtn = document.getElementById("tick-btn");
@@ -16,6 +19,7 @@ const eventInput = document.getElementById("event-input");
 const navTrigger = document.getElementById("nav-trigger");
 const topNavDrawer = document.getElementById("top-nav-drawer");
 
+// ---------- MAIN ----------
 async function loadWorld() {
   const res = await fetch("/api/world");
   if (!res.ok) throw new Error(`Failed to load world state (${res.status})`);
@@ -67,6 +71,7 @@ async function runTick(eventDescription) {
   }
 }
 
+// ---------- START ----------
 navTrigger.addEventListener("click", () => {
   const open = topNavDrawer.classList.toggle("top-nav-drawer--open");
   navTrigger.classList.toggle("header-nav-trigger--open", open);

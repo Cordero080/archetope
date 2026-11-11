@@ -1,31 +1,10 @@
-const ACCENTS = {
-  tower: "var(--c-tower)",
-  hierophant: "var(--c-hierophant)",
-  star: "var(--c-star)",
-  magician: "var(--c-magician)",
-};
+// ---------- IMPORTS ----------
+import { accentFor, formatRelativeTime } from "./js/helpers.js";
 
-function accentFor(key) {
-  return ACCENTS[key] || "var(--glass-border)";
-}
-
-function formatRelativeTime(timestamp) {
-  const diffSec = Math.max(
-    0,
-    Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000),
-  );
-  if (diffSec < 5) return "just now";
-  if (diffSec < 60) return `${diffSec}s ago`;
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}h ago`;
-  const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}d ago`;
-}
-
+// ---------- CONFIG ----------
 const galleryEl = document.getElementById("gallery");
 
+// ---------- MAIN ----------
 function renderGallery(images) {
   galleryEl.textContent = "";
 
@@ -85,6 +64,7 @@ async function loadGallery() {
   renderGallery(data.images);
 }
 
+// ---------- START ----------
 loadGallery().catch((err) => {
   galleryEl.textContent = `Failed to load: ${err.message}`;
 });

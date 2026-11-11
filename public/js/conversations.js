@@ -1,5 +1,7 @@
+// ---------- IMPORTS ----------
 import { accentFor, formatRelativeTime } from "./helpers.js";
 
+// ---------- CONFIG ----------
 const conversationsEl = document.getElementById("conversations");
 const transcriptOverlay = document.getElementById("transcript-overlay");
 const transcriptTitle = document.getElementById("transcript-title");
@@ -15,6 +17,7 @@ const agentFocusConversations = document.getElementById(
 // it's already loaded for the main Conversations panel.
 export let latestConversations = [];
 
+// ---------- HELPERS ----------
 // Builds one clickable conversation row — shared by the main Conversations
 // panel and the agent-focus modal's Conversations tab (same row, two places
 // it can appear, filtered differently).
@@ -47,6 +50,7 @@ function createConversationRow(conv) {
   return row;
 }
 
+// ---------- MAIN ----------
 export function renderConversations(conversations) {
   conversationsEl.textContent = "";
   if (conversations.length === 0) {
@@ -140,6 +144,7 @@ async function openTranscript(id, archetypeA, archetypeB) {
   transcriptOverlay.hidden = false;
 }
 
+// ---------- START ----------
 transcriptClose.addEventListener("click", () => {
   transcriptOverlay.hidden = true;
 });

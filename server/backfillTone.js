@@ -2,9 +2,12 @@
 // predates the tone feature (tone IS NULL), so old conversations get tagged
 // too, not just ones generated after classifyTone was wired in. Safe to
 // re-run — it only ever touches rows still missing a tone.
+
+// ---------- IMPORTS ----------
 import { query, pool } from "./db.js";
 import { classifyTone } from "./toneClient.js";
 
+// ---------- MAIN ----------
 async function main() {
   const { rows } = await query(
     `SELECT id, message FROM conversation_turns WHERE tone IS NULL ORDER BY id ASC`,
@@ -31,6 +34,7 @@ async function main() {
   );
 }
 
+// ---------- START ----------
 main()
   .catch((err) => {
     console.error("Backfill failed:", err);

@@ -3,10 +3,13 @@
 // and memory. Agents never message each other directly (stigmergy) — they
 // only see world_state/relationships/memory as of *before* this tick; they
 // perceive each other's actions on the next tick they're woken for.
+
+// ---------- IMPORTS ----------
 import { query } from "./db.js";
 import { callAgent } from "./agentClient.js";
 import { pickConversationPair, runConversation } from "./conversation.js";
 
+// ---------- HELPERS ----------
 async function getAllAgents() {
   const { rows } = await query("SELECT * FROM agents ORDER BY id");
   return rows;
@@ -152,6 +155,7 @@ async function getEventDescription(eventId) {
   return rows[0]?.description ?? "";
 }
 
+// ---------- MAIN ----------
 export async function tick(eventDescription) {
   const { rows: eventRows } = await query(
     "INSERT INTO events (description) VALUES ($1) RETURNING id",

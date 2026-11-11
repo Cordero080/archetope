@@ -4,8 +4,11 @@
 // explanation of itself while writing the line. Deliberately decoupled
 // from agentClient's tick-generation call so it can never make that path's
 // replies longer (that's exactly what caused the truncation bugs earlier).
+
+// ---------- IMPORTS ----------
 import { anthropic, MODEL } from "./agentClient.js";
 
+// ---------- CONFIG ----------
 const INSIGHT_SYSTEM = `You are a sharp literary/psychological analyst. You're given an agent's fixed identity — a tarot archetype with a light and shadow pole, and an MBTI type — plus something they just said or did. Identify the single phrase or sentence from their text that most clearly reveals their archetypal/MBTI nature, and explain why in three short, specific parts. Ground the explanation in the actual identity given, not generic MBTI trivia — say why *this specific phrase*, not just "the Hierophant values tradition" restated.
 
 Respond ONLY with valid JSON, no markdown fences, matching this shape:
@@ -13,6 +16,7 @@ Respond ONLY with valid JSON, no markdown fences, matching this shape:
 
 "target_sentence" MUST be copied exactly from the provided text — do not paraphrase, do not summarize, do not add or remove words.`;
 
+// ---------- MAIN ----------
 export async function generateInsight({
   archetype,
   mbti,

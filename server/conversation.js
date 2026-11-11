@@ -2,14 +2,18 @@
 // speaker sees the other agent's actual words (not just the aggregated
 // world_state log), and replies to them directly. Distinct from the tick
 // loop's one-shot "what do you build" proposals.
+
+// ---------- IMPORTS ----------
 import { query } from "./db.js";
 import { callAgentRaw } from "./agentClient.js";
 import { classifyTone } from "./toneClient.js";
 
+// ---------- CONFIG ----------
 const TURNS_PER_CONVERSATION = 4;
 
 const CONVERSATION_SYSTEM_SUFFIX = `You are now in a direct, spoken conversation with another agent — not building, not proposing, just talking to them. Reply with ONLY the words you say out loud: 1-2 sentences, no narration, no stage directions, no quotation marks, no JSON. Speak in your own established voice and sense of humor from your identity above — not a generic tone, and not the same way the other agent talks. Plain modern language, no poetic or nature metaphor (no roots, veins, hearths, stones, claws, earth), even if the world-state history was written in a flowery style. Ignore that style completely. You know 2026 technology, so default to modern/high-tech tools and methods over primitive ones.`;
 
+// ---------- HELPERS ----------
 function buildTurnPrompt({
   eventDescription,
   worldStateText,
@@ -34,6 +38,7 @@ export function pickConversationPair(agents) {
   return [shuffled[0], shuffled[1]];
 }
 
+// ---------- MAIN ----------
 export async function runConversation({
   agentA,
   agentB,

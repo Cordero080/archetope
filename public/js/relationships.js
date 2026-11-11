@@ -1,5 +1,7 @@
+// ---------- IMPORTS ----------
 import { openInfoModal } from "./modal.js";
 
+// ---------- CONFIG ----------
 const relationshipsEl = document.getElementById("relationships");
 
 const INFO_CONTENT = {
@@ -13,6 +15,7 @@ const INFO_CONTENT = {
   },
 };
 
+// ---------- MAIN ----------
 export function renderRelationships(relationships) {
   relationshipsEl.textContent = "";
   if (relationships.length === 0) {
@@ -60,6 +63,7 @@ export function renderRelationships(relationships) {
   }
 }
 
+// ---------- START ----------
 document.querySelectorAll(".info-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     const content = INFO_CONTENT[btn.dataset.info];
